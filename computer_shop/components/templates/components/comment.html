@@ -1,0 +1,14 @@
+
+<li>Автор: <a href="{% url 'user' comment.author %}">{{comment.author}}</a></li>
+        <li>Дата: {{comment.create_date}}</li>
+        <li style="padding-bottom: 10px;">{{comment.text}}</li>
+<form action="{% url 'comment_like' comment.pk %}" method="POST">
+{% csrf_token %}
+{% if comment_is_liked %}
+    <button type="submit" name="comment_id" value="{{comment.id}}">Убрать лайк</button>
+{% else %}
+    <button type="submit" name="comment_id" value="{{comment.id}}">Поставить лайк</button>
+{% endif %}
+{{likes_count}}
+</form>
+

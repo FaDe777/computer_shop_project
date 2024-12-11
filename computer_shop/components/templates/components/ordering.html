@@ -1,0 +1,38 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+
+<h2 style="margin-left: 22.1vw; font-family: Arial;">Оформление заказа</h2>
+
+<div class="content">
+
+    <form class="block order-form" action="{% url 'ordering' %}" method="post">
+        {% csrf_token %}
+        {% for i in form %}
+            {{i.label}}:<br>
+            {{i}}<br><br>
+        {% endfor %}
+<!--        <input type="hidden" name="pk" value="{{order}}">-->
+        {% if otp_required %}
+            <input type="text" name="otp">
+            <button>Подтвердить</button>
+        {% else %}
+            <button type="submit">Отправить код подтвеждения</button>
+        {% endif %}
+    </form>
+
+    <div class="block order-cart">
+        <span>К оформлению</span>
+        <span>{{count}} {{word}}</span><br>
+        <span>Сумма</span>
+        <span>{{result}} ₽</span>
+    </div>
+
+</div>
+{% endblock %}
+
+
+
+
+
+

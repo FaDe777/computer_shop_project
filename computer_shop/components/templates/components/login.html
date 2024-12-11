@@ -1,0 +1,21 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+
+<form class="register" action="{% url 'login' %}" method="post">
+
+    <div class="p-auth">Авторизация</div>
+    <hr class="hr-auth">
+    {% csrf_token %}
+
+        <p class="p-label">{{ form.username.label }}: {{ form.username }}</p>
+    <p class="p-label" style="margin-bottom: 0px;">{{ form.password.label }}:</p> <div class="p-label" style="margin-bottom: 10px;">{{ form.password }}<a href="#" class="password-control" onclick="return show_hide_password(this);"></a></div>
+
+
+    <button class="btn-auth" type="submit">Войти</button>
+
+    {{ form.non_field_errors }}
+
+</form>
+
+{% endblock %}

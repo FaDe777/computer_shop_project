@@ -1,0 +1,25 @@
+{% extends 'components/profile_settings.html' %}
+
+{% block ggg %}
+<form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    {% if code_required %}
+        <input type="number" name="code">
+        {% if messages %}
+            {% for i in messages %}
+                {{i}}
+            {% endfor %}
+
+        {% endif %}
+
+        <button>Подтвердить</button>
+    {% else %}
+        <button>Отправить код подтверждения</button>
+    {% endif %}
+</form>
+{% endblock %}
+
+
+
+

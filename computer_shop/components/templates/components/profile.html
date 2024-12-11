@@ -1,0 +1,40 @@
+{% extends 'components/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="category block">
+    <ul class="ul-category">
+        <li class="li-category"><a href="{% url 'user' user %}">Профиль</a></li>
+        <li class="li-category"><a href="{% url 'orders' %}">Мои заказы</a></li>
+        <li class="li-category"><a href="{% url 'notifications' %}">Уведомления</a></li>
+        <li class="li-category"><a href="{% url 'settings' %}">Настройки</a></li>
+    </ul>
+</div>
+
+{% block profile %}
+<div class="profile">
+
+    <p>Личный кабинет {{user}}</p>
+
+    {% if user.custom.avatar %}
+        <img class="avatar" src="{{ user.custom.avatar.url }}"/>
+    {% else %}
+        <img class="avatar" src="{% static 'components/images/no-avatar.png' %}"/>
+    {% endif %}
+
+    {% if request.user == user %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button>Загрузить фото</button>
+        </form>
+
+        <form method="POST">
+            {% csrf_token %}
+            <button name="delete" value="1">Удалить фото</button>
+        </form>
+    {% endif %}
+
+</div>
+{% endblock %}
+{% endblock %}

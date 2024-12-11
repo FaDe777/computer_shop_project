@@ -1,0 +1,17 @@
+{% extends 'components/base.html' %}
+
+
+{% block content %}
+    <div class="settings-general">
+        <div class="settings-menu">
+            <a class="settings-menu-objects" href="{% url 'settings' %}">Редактирование профиля</a>
+            <a class="settings-menu-objects" href="{% url 'change_email' %}">Изменить почту</a>
+            <a class="settings-menu-objects" href="{% url 'change_pass' %}">Изменить пароль</a>
+        </div>
+        <div class="settings-content">
+            {% block ggg %}
+                {{user.email}}
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

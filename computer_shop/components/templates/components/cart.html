@@ -1,0 +1,116 @@
+{% extends 'components/base.html' %}
+{% load tags %}
+{% load static %}
+{% block content %}
+
+<h2 style="margin-left: 22.1vw; font-family: Arial;">Корзина товаров</h2>
+
+<script charset="utf-8" src="{% static 'components/jquery-3.7.0.min.js' %}"></script>
+
+<div class="content">
+    {% if cart %}
+    <form id="clear" action="{% url 'clear_cart' %}" method="post">
+        {% csrf_token %}
+        <button class="btn-parent" style="color: #7B7B7B; border-bottom: 1px dashed #7B7B7B; font-weight: 600; background:none; border-radius: 0; padding: 0;">Очистить корзину</button>
+    </form>
+        <ul class="ul-components">
+
+        {% for i,j in cart %}
+            <li id="{{ i.pk }}" class="li-component-cart">
+                <img class="components-image" src="{{i.photo.url}}">
+                <div class="options"><a class="a-components" href="{{i.get_absolute_url}}">{{i.title}}</a></div>
+                <div class="price-in-cart"><span name="price" style="font-family: Arial; font-weight: 500; font-size: 22px;">{% multiple i.price j %} ₽</span></div>
+                <div class="quantity-box">
+                    <div class="quantity">
+                        <form name="minus" class="fff quantity-objects" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="value" value="{{ i.pk }}">
+                            <button class="btn-parent quantity-btn">-</button>
+                        </form>
+                        <div name="total" class="ggg quantity-objects quantity-counter">{{j}}</div>
+
+                        <form name="add" class="fff quantity-objects" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="value" value="{{ i.pk }}">
+                            <button type="submit" class="btn-parent quantity-btn">+</button>
+                        </form>
+
+                    </div>
+                    <span style="color: #999">{{i.price}} ₽/шт.</span>
+                </div>
+                <form class="delete-cart-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="value" value="{{ i.pk }}">
+                    <button class="btn-parent btn-del">Удалить</button>
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    <div id="order-box" class="ordering-box block">
+        <span>Итого: </span>
+        <span id="result">{{ result }} ₽</span> <span id="count">{{ count }} шт.</span>
+        <a href="{% url 'ordering' %}">Перейти к оформлению</a>
+    </div>
+    {% else %} Корзина пуста
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+
+$(".fff").each(function(ind,obj){
+
+    $(obj).submit(function(e) {
+
+        $.ajax({
+
+            data: {
+                value : $(this).find('input[name="value"]').val(),
+                name: $(this).attr('name'),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                dataType: "json",
+                 },
+            type: "POST",
+            url: "{% url 'cart_add' %}",
+            success: function(response){
+                $('#' + response.id).find('div[name="total"]').html(response.total)
+                $('#' + response.id).find('span[name="price"]').html(response.price)
+                $('#result').html(response.sum)
+                $('#count').html(response.count)
+            },
+        });
+        e.preventDefault()
+    });
+});
+
+$(".delete-cart-form").each(function(ind,obj){
+    $(obj).submit(function(elem){
+        $.ajax({
+            data: {
+                value: $(this).find('input[name="value"]').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                dataType: "json",
+                },
+            type: "POST",
+            url: "{% url 'cart_del' %}",
+            success: function(response){
+                $(obj).parent().remove()
+
+                if (response.len == 0){
+                    $('#order-box').remove()
+                    $('.ul-components').remove()
+                    $('#clear').html('Корзина пуста')
+                }
+                else {
+                    $('#result').html(response.sum)
+                    $('#count').html(response.count)
+                }
+            }
+        });
+        elem.preventDefault()
+    });
+
+});
+
+</script>
+
+{% endblock %}

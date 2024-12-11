@@ -1,0 +1,13 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+<form class="register" action="{% url 'register' %}" method="post">
+    <p class="p-auth">Регистрация</p>
+    {% csrf_token %}
+    {% for i in form %}
+        <p class="p-label">{{i.label}}: {{i}} {{i.errors}} </p>
+    {% endfor %}
+
+    <button class="btn-auth" type="submit">Регистрация</button>
+</form>
+{% endblock %}

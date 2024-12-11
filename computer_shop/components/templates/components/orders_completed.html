@@ -1,0 +1,30 @@
+{% extends 'components/orders.html' %}
+
+{% block main %}
+<div style="margin-top: 25px;" class="orders-grid">
+        {% for i in main %}
+            <div class="grid-elem">
+                {{i}}
+            </div>
+        {% endfor %}
+
+        {% for i in orders %}
+            <div class="grid-elem">
+                {{i.create_date|date:'d.m.Y G:i'}}
+            </div>
+            <div class="grid-elem">
+                <a class="order-link" href="{{ i.get_absolute_url }}">{{i.pk}}</a>
+            </div>
+            <div class="grid-elem">
+                {{i.count}}
+            </div>
+            <div class="grid-elem">
+                {{i.total}}₽
+            </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}
+
+
+

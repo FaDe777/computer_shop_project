@@ -1,0 +1,132 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+{% load static %}
+<script charset="utf-8" src="{% static 'components/jquery-3.7.0.min.js' %}"></script>
+
+<!--<div class="category block">-->
+<!--    Каталог-->
+<!--    <ul class="ul-category">-->
+<!--        {% for i in categories %}-->
+<!--            {% if i.pk == category_selected %}-->
+<!--            <li class="li-category"><a class="a-category-selected" href="{{ i.get_absolute_url }}">{{i.c_name}}</a></li>-->
+<!--            {% else %}-->
+<!--            <li class="li-category"><a class="a-category" href="{{ i.get_absolute_url }}">{{i.c_name}}</a></li>-->
+<!--            {% endif %}-->
+<!--        {% endfor %}-->
+<!--    </ul>-->
+<!--</div>-->
+
+{% block list %}
+<div class="content c-content">
+    <h2 style="font-family: Arial;">Категории</h2>
+    {% for i in page_obj %}
+        <a class="category block" href="{{ i.get_absolute_url }}">
+            <div class="category-div1">
+                {% if i.image %}
+                    <img class="category-img" src="{{ i.image.url }}" alt="">
+                {% endif %}
+            </div>
+            <div class="category-div2">{{ i.c_name }}</div>
+        </a>
+    {% endfor %}
+
+
+
+
+<!--    <h2 style="font-family: Arial;">Все товары</h2>-->
+<!--    <ul class="ul-components">-->
+
+<!--    {% for i in page_obj %}-->
+
+<!--        <li class="li-components">-->
+<!--            {% if i.photo %}-->
+<!--                <img class="components-image" src="{{ i.photo.url }}">-->
+<!--            {% endif %}-->
+<!--            <div class="options">-->
+<!--                <a class="a-components" href="{{ i.get_absolute_url }}">{{i.title}}</a><br><br>-->
+
+<!--                {% if i.reviews.all %}-->
+<!--                    Рейтинг {{ i.rating }}/5  <br>{{i.reviews.all | length}} оценки-->
+<!--                {% else %}-->
+<!--                    Ещё нет оценок-->
+<!--                {% endif %}<br>-->
+<!--                <ul class="ul-options">-->
+<!--                    {% for key, value in i.options.Preview.items %}-->
+<!--                    <li class="li-options"><span>{{key}}</span> <span>{{value}}</span></li>-->
+<!--                    {% endfor %}-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--            <div class="price-and-cart">-->
+
+<!--                <div class="price"><span>Цена</span> <span>{{i.price}} ₽</span></div>-->
+
+<!--                {% if i.pk in keys %}-->
+<!--                <a class="btn-cart btn-parent a-cart" href="{% url 'cart' %}"><span style="display: inline-block; margin: 16px 0;">В корзине</span></a>-->
+<!--                {% else %}-->
+<!--                    <form class="fff" method="post">-->
+<!--                        {% csrf_token %}-->
+<!--                        <input type="hidden" name="value" value="{{ i.pk }}">-->
+<!--                        <button class="btn-parent btn-cart" type="submit">Добавить в корзину</button>-->
+<!--                    </form>-->
+<!--                {% endif %}-->
+<!--            </div>-->
+<!--        </li>-->
+<!--        <li class="hr"><hr></li>-->
+<!--    {% endfor %}-->
+<!--    </ul>-->
+
+</div>
+<nav class="pagination-box">
+
+    {% if page_obj.has_previous %}
+        <a class="page" href="?page={{ page_paginator.page_range.0 }}"><<</a>
+        <a class="page" href="?page={{ page_obj.previous_page_number }}"><</a>
+    {% endif %}
+
+    {% for i in page_obj.paginator.page_range %}
+        {% if page_obj.number == i %}
+            <a class="page page-selected" href="?page={{ i }}">{{ i }}</a>
+        {% elif i >= page_obj.number|add:-1 and i <= page_obj.number|add:+1 %}
+            <a class="page" href="?page={{ i }}">{{ i }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+        <a class="page" href="?page={{ page_obj.next_page_number }}">></a>
+        <a class="page" href="?page={{ page_obj.paginator.page_range|last }}">>></a>
+    {% endif %}
+
+<!--    <form method="GET">-->
+<!--        <input name="page" type="number" placeholder="Введите номер страницы">-->
+<!--        <button>Перейти</button>-->
+<!--    </form>-->
+
+</nav>
+
+
+<script type="text/javascript">
+    $('.fff').each(function(ind,obj){
+        $(obj).submit(function(elem){
+            $.ajax({
+                data: {
+                    value : $(this).find('input[name="value"]').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    dataType: "json"
+                    },
+                type: "POST",
+                url: "{% url 'cart_add' %}",
+                success: function(response){
+                    var new_obj = $('<a class="btn-cart btn-parent a-cart" href="{% url 'cart' %}"><span style="display: inline-block; margin: 16px 0;">В корзине</span></a>')
+                    $(obj).replaceWith(new_obj)
+                }
+            });
+            elem.preventDefault()
+        });
+    });
+
+</script>
+{% endblock %}
+
+{% endblock %}
+

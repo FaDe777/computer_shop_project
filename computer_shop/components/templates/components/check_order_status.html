@@ -1,0 +1,21 @@
+{% extends 'components/base.html' %}
+
+{% block content %}
+<div class="content">
+    <form class="block check-status-form" action="{% url 'check_order_status' %}" method="post">
+        <span>Узнать статус заказа</span><br><br>
+        {% csrf_token %}
+        {% for i in form %}
+        {{i}}<br><br>
+        {% endfor %}
+        {{ form.non_field_errors }}
+<!--        {% for i in messages %}-->
+<!--            {{i}}-->
+<!--        {% endfor %}-->
+
+
+        <div><button class="btn-parent check-btn">Проверить</button></div>
+    </form>
+
+</div>
+{% endblock %}

@@ -1,0 +1,378 @@
+{% extends 'components/base.html' %}
+{% load tags %}
+{% load static %}
+
+{% block content %}
+
+<div class="content content-component">
+    <div>
+        <div class="component-window">
+
+            <div style="height: 75px; border: 1px solid blue;">
+                <span class="component-title">{{component.title}}</span>
+            </div>
+            <div class="slider-wrap">
+
+                <button class="slider-left">
+
+                </button>
+
+                <div class="slider">
+                    <div class="slides">
+                        {% for i in component.images.all %}
+                            <input type="radio" name="r" id="r{{i.pk}}">
+                        {% endfor %}
+
+                        {% for i in component.images.all %}
+                            {% if forloop.first %}
+                                <div class="slide s1"><img class="" src="{{i.image.url}}"></div>
+                            {% else %}
+                                <div class="slide"><img class="" src="{{i.image.url}}"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="slider-right">
+
+                </button>
+            </div>
+            <div class="navigation">
+                {% for i in component.images.all %}
+                    <label for="r{{i.pk}}" class="bar"><img src="{{i.image.url}}"></label>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <div class="block buy-window">
+            {% if select_opt %}
+                {% for i in select_opt %}
+                <div>
+                    <div style="height: 30%;">
+                        <span class="prices-l">{{i}}:</span>
+                    </div>
+                    <div style="height: 70%;padding-left: 35px; padding-top: 5px;">
+                        {% for j in select_opt|get:i %}
+                        <a href="{{j.get_absolute_url}}">{{j.options.addons|get:i}}</a>
+                        {% endfor %}
+
+
+                    </div>
+                </div>
+
+                <hr>
+                {% endfor %}
+<!--                <div>-->
+<!--                    <div style="height: 30%;">-->
+<!--                        <span class="prices-l">Объём памяти:</span>-->
+<!--                    </div>-->
+<!--                    <div  style="height: 70%;">-->
+<!--&lt;!&ndash;                        {% for i in select_opt %}&ndash;&gt;-->
+<!--&lt;!&ndash;                            {% if i.options.All.Цвет == component.options.All.Цвет %}&ndash;&gt;-->
+<!--&lt;!&ndash;&lt;!&ndash;                                <a href="{{i.get_absolute_url}}" style="display: inline-block;">{{i.options.All|get:"Объём встроенной памяти"}}</a>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                            {% endif %}&ndash;&gt;-->
+<!--&lt;!&ndash;                        {% endfor %}&ndash;&gt;-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <hr>-->
+            {% endif %}
+            <div>
+                <div style="height: 50%; margin-top: 0;">
+                    <span class="prices-l">Цена:</span>
+                    <span class="prices-r">{{component.price}} ₽</span>
+                </div>
+                <div style="height: 50%; text-align:center;">
+                    {% if component.pk in keys %}
+                        <a class="btn-cart btn-parent a-cart" href="{% url 'cart' %}"><span>В корзине</span></a>
+                    {% else %}
+                        <form class="yyy" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="value" value="{{ component.pk }}">
+                            <button class="btn-parent btn-cart" type="submit">Добавить в корзину</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="block charact">
+        <div>Характеристики</div>
+
+        {% for key, value in options.All.items %}
+        <span>{{key}} : {{value}}</span><br>
+        {% endfor %}
+
+    </div>
+
+    <p style="font-size: 30px;">Отзывы ({{comments | length}})</p>
+
+        <button id="review-btn" style="margin-bottom: 5px;" onclick="showReviewForm()">Добавить отзыв</button>
+
+        <form class="review-form block" name="review" action="." method="post" id="review-form">
+            <span style="font-size: 18px;">{{ form.rate.label }}</span>
+            <br>
+            {% for i in form.rate %}
+                <div class="rate-btn">
+                    {{i.tag}}
+                    <label for="{{ i.id_for_label }}">{{ i.choice_label}}</label>
+                </div>
+            {% endfor %}
+            <br><br>
+            <span style="font-size: 18px;">{{ form.advantages.label }}</span><br>
+            {{ form.advantages }}
+            <br><br>
+            <span style="font-size: 18px;">{{ form.disadvantages.label }}</span><br>
+            {{ form.disadvantages }}
+            <br><br>
+            <span style="font-size: 18px;">{{ form.text.label }}</span>
+            <br>
+            {{ form.text }}
+            <br><br>
+
+            {% csrf_token %}
+            <button class="btn-parent" type="submit">Добавить отзыв</button>
+        </form>
+
+<!-- gggggggggggggggggggggggggggggggggggggggg -->
+        <div style="border: 1px solid black;">
+        <ul class="reviews">
+        {% for i in comments %}
+            <li id="{{i.pk}}" class="review block">
+
+                {% if i.author.custom.avatar %}
+                    <img class="review-avatar" src="{{ i.author.custom.avatar.url }}">
+                {% else %}
+                    <img class="review-avatar" src="{% static 'components/images/no-avatar.png' %}">
+                {% endif %}
+
+                <a class="review-user" href="{% url 'user' i.author %}">{{ i.author }}</a>
+
+                <span id="date{{i.pk}}" class="review-date">{{ i.create_date|date:"d.m.Y" }}</span><br><br>
+
+                <span>Оценка: <span id="rate{{i.pk}}">{{i.rate}}</span></span><br><br>
+
+                <label id="advantages">Достоинства</label><br>
+                <span style="font-size: 18px;">{{ i.advantages }}</span><br><br>
+
+                <label id="disadvantages">Недостатки</label><br>
+                <span>{{ i.disadvantages }}</span><br><br>
+
+                <label id="comment">Комментарий</label><br>
+                <span>{{ i.text }}</span><br><br>
+                <div class="wrap_likes_dislikes">
+
+                    <button class="comment-btn" id="comment-btn{{i.pk}}" onclick="showComments({{i.pk}})">Комментарии ({{ i.reply_count }})</button>
+
+
+                    <div class="likes_dislikes">
+                        <form class="likes" id="l{{i.pk}}" method="POST">
+                            {% csrf_token %}
+
+                            {% count i request 'likes' as liked %}
+                            <input type="hidden" name="value" value="{{i.pk}}">
+                            {% if liked %}
+
+                                <button class="svg-like" style="background-image: url({% static 'components/images/like-active.svg' %})" type="submit" id="remove{{i.pk}}" name="remove"></button>
+
+                            {% else %}
+
+                                <button class="svg-like" style="background-image: url({% static 'components/images/like.svg' %})" id="add{{i.pk}}" type="submit" name="add"></button>
+
+                            {% endif %}
+
+                            <span name="count" id="lcount{{i.pk}}">{{ i.likes_count }}</span>
+
+                        </form>
+
+                        <form class="dislikes" id="d{{i.pk}}" method="POST">
+                            {% csrf_token %}
+
+                            {% count i request 'dislikes' as disliked %}
+                            <input type="hidden" name="value" value="{{i.pk}}">
+                            {% if disliked %}
+
+                                <button class="svg-like" style="background-image: url({% static 'components/images/dislike-active.svg' %})" type="submit" name="remove"></button>
+
+                            {% else %}
+                                <button class="svg-like" style="background-image: url({% static 'components/images/dislike.svg' %})" type="submit" name="add"></button>
+                            {% endif %}
+
+                            <span name="count" id="dcount{{i.pk}}">{{ i.dislikes_count }}</span>
+                        </form>
+                    </div>
+                </div>
+                <div id="f_w_c{{i.pk}}" class="form_with_comments">
+
+                    <form class="reply-form-wrap" data-url="{% url 'reply_ajax' %}" method="POST">
+                        {{ form_reply.text }}
+                        {% csrf_token %}
+                        <input type="hidden" name="reply" value="{{i.pk}}">
+                        <button name="button" class="replybtn" type="submit">Отправить</button>
+                    </form>
+
+                    <div id="reply-wrap{{i.pk}}" class="reply-wrap">
+                        {% for j in i.replies.all %}
+                            <div id="reply{{j.pk}}" class="reply">
+                                <div style="">
+                                    {% if j.author.custom.avatar %}
+                                        <img id="avatar{{i.pk}}" class="review-avatar" src="{{ j.author.custom.avatar.url }}">
+                                    {% else %}
+                                        <img id="avatar{{i.pk}}" class="review-avatar" src="{% static 'components/images/no-avatar.png' %}">
+                                    {% endif %}
+
+                                    <div class="author-name"><a id="author{{j.pk}}" href="{% url 'user' j.author %}">{{j.author}}</a></div>
+
+                                    {% if request.user.pk == j.author.pk %}
+                                        <button onclick="confirmDelete({{j.pk}})" type="submit" style="float:right; vertical-align: middle; margin-top: 10px; margin-right: 25px;">Удалить</button>
+                                    {% endif %}
+
+                                    <div id="popup{{j.pk}}" class="popup-fade">
+                                        <div class="popup">
+                                            <div class="confirm-del">Подтвердите действие</div>
+                                            <div style="margin-top: 20px; text-align: center; width: 250px;">
+                                                <div style="display: inline-block;">
+                                                    <button style="border: 1px solid black; width: 100px; background: none; color: black; margin-right: 5px; height: 25px;" onclick="closeConfirm({{j.pk}})" class="">Отмена</button>
+                                                </div>
+                                                <form class="reply-del" data-url="{% url 'reply_delete_ajax' %}" style="display: inline-block; padding: 0;" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="reply_delete" value="{{j.pk}}">
+                                                    <button onclick="closeConfirm({{j.pk}})" type="submit" style="float:right; height: 25px; vertical-align: middle; width: 100px; background: red; border: 1px solid red; margin-left: 5px;">Удалить</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div>{{ j.time_create }}</div>
+                                <div>{{ j.text }}</div>
+
+                                <div><button class="comment-btn" onclick="showReplyForm({{j.pk}})" style="margin-top: 0;">Ответить</button></div>
+
+                                <form id="r_f_w{{j.pk}}" class="reply-form-wrap reply2" data-url="{% url 'reply_ajax' %}" method="POST">
+                                    {{ form_reply.text }}
+                                    {% csrf_token %}
+                                    <input type="hidden" name="reply" value="{{i.pk}}">
+                                    <button name="button" class="replybtn" type="submit">Отправить</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </li>
+
+
+        {% endfor %}
+        </ul>
+            <div class="block reviews-filter">
+                <input onclick="orderByDate()" type="radio" name="sort" id="date">
+                <label for="date">По дате</label>
+                <br>
+                <input onclick="orderByTop()" type="radio" name="sort" id="top">
+                <label for="top">По популярности</label>
+                <br>
+                <input onclick="orderByRate()" type="radio" name="sort" id="rate">
+                <label for="rate">По оценке</label>
+
+            </div>
+        </div>
+
+</div>
+
+<script charset="utf-8" src="{% static 'components/jquery-3.7.0.min.js' %}"></script>
+<script type="text/javascript">
+    $('.yyy').each(function(ind,obj){
+        $(obj).submit(function(elem){
+            $.ajax({
+                data: {
+                    value : $(this).find('input[name="value"]').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    dataType: "json"
+                },
+                type: "POST",
+                url: "{% url 'cart_add' %}",
+                success: function(response){
+                    console.log($(this).serialize())
+                    var new_obj = $('<a class="btn-cart btn-parent a-cart" href="{% url 'cart' %}"><span style="display: inline-block; margin: 16px 0;">В корзине</span></a>')
+                    $(obj).replaceWith(new_obj)
+                }
+            });
+            elem.preventDefault()
+        });
+    });
+
+    $('.likes').each(function(ind,obj){
+        $(obj).submit(function(elem){
+            $.ajax({
+                data: {
+                    value: $(this).find('input[name="value"]').val(),
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    dataType: 'json',
+                    type: 'like',
+                },
+                type: "POST",
+                url: "{% url 'comment_like' %}",
+                success: function(response){
+
+                    if (response.act == 'True') {
+
+                        $('#l' + response.pk).find('button[name="add"]').replaceWith('<button class="svg-like" style="background-image: url({% static 'components/images/like-active.svg' %})" type=submit id=remove' + response.pk + ' name=remove></button>')
+
+                    }
+                    else {
+                        obj1 = '<button class="svg-like" style="background-image: url({% static 'components/images/like.svg' %})" id="add' + response.pk + '" type="submit" name="add"></button>'
+                        $('#remove' + response.pk).replaceWith(obj1)
+                    }
+
+<!--                    $('#l' + response.pk).find('span[name="count"]').replaceWith('<span name="count">' + response.likes + '</span>')-->
+<!--                    $('#l' + response.pk).find('span[name="count"]')[0].id = "lcount" + response.pk-->
+                        $('#l' + response.pk).find('span[name="count"]').html(response.likes)
+
+                    if (response.re_dis == 'True'){
+                        $('#d' + response.pk).find('span[name="count"]').html(response.dislikes)
+                        $('#d' + response.pk).find('button[name="remove"]').replaceWith('<button class="svg-like" style="background-image: url({% static 'components/images/dislike.svg' %})" type="submit" name="add"></button>')
+                    }
+                }
+
+            });
+
+            elem.preventDefault()
+        });
+    });
+
+    $('.dislikes').each(function(ind,obj){
+        $(obj).submit(function(elem){
+            $.ajax({
+                data: {
+                    value: $(this).find('input[name="value"]').val(),
+                    dataType: 'json',
+                    csrfmiddlewaretoken: '{{csrf_token}}',
+                    type: 'dislike',
+                },
+                type: "POST",
+                url: "{% url 'comment_like' %}",
+                success: function(response){
+
+                    if (response.act == 'True'){
+                        $(obj).find('button[name="add"]').replaceWith('<button class="svg-like" style="background-image: url({% static 'components/images/dislike-active.svg' %})" type="submit" name="remove"></button>')
+                    }
+                    else {
+                        $(obj).find('button[name="remove"]').replaceWith('<button class="svg-like" style="background-image: url({% static 'components/images/dislike.svg' %})" type="submit" name="add"></button>')
+                    }
+                    $(obj).find('span[name="count"]').html(response.dislikes)
+
+                    if (response.re_like == 'True'){
+                        $('#l' + response.pk).find('span[name="count"]').html(response.likes)
+                        console.log($('#add' + response.pk))
+                        $('#l' + response.pk).find('button[name="remove"]').replaceWith('<button class="svg-like" style="background-image: url({% static 'components/images/like.svg' %})" type="submit" name="add"></button>')
+                    }
+
+                }
+            });
+            elem.preventDefault()
+        });
+    });
+</script>
+
+{% endblock %}
